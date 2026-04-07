@@ -1,0 +1,119 @@
+User [icon: user]{
+  user_id serial pk
+  email varchar(50)
+  phone varchar(20)
+  bio varchar(100)
+  
+  created_at timestamp
+
+}
+
+Trainers [icon: user-cog]{
+  trainer_id serial pk
+  user_id fk
+  specialization varchar(255)
+  hourly_rate int
+}
+
+Client [icon: client]{
+  client_id serial pk
+  user_id fk
+  fitness_goal varchar(50)
+  height int
+  current_weight int
+}
+
+Plans [icon: map]{
+  plan_id serial pk
+  trainer_id fk
+  name varchar(50)
+  description varchar(255)
+  price int
+  
+  created_at timestamp
+}
+
+Subscriptions[icon: check]{
+  subscribe_id serial pk
+  client_id fk
+  plan_id fk
+
+  start_date timestamp
+  end_date timestamp
+  status enum('acitve' 'paused;'expired')
+  created_at timestamp
+
+}
+
+Sessions [icon: table]{
+  session_id serial pk
+  trainer_id fk
+  client_id fk
+  subscribe_id fk
+
+  schedule_date timestamp
+  duration_minutes timestamp
+  type varchar(20)
+  notes text
+  status enum('schedule', 'completed','cancelled')
+}
+
+CheckIn [icon: door]{
+  check_id serial pk
+  client_id fk
+  subscribe_id fk
+  check_date timestamp
+  notes text
+  mood varchar(50)
+  created_at timestamp
+}
+Payments[icon:payment]{
+  payment_id serial  pk
+  subscribe_id fk
+  amount int
+  payment_date timestamp
+  status enum('pending','success','failed')
+  trasaction_id int unique
+}
+
+//One user profile can be a SINGLE trainer                               // Each trainer refers to ONE user
+User.user_id - Trainers.user_id
+
+//One user profile can be a SINGLE client                                // Each client refers to ONE user 
+User.user_id - Client.user_id
+
+//One trainer can CREATE MANY plans                                 //Each plan belongs to ONE trainer
+Trainers.trainer_id > Plans.trainer_id
+
+//One client can SUBSCRIBE to MANY plans                                 //One plan can be SUBSCRIBED to by MANY clients 
+Client.client_id > Subscriptions.client_id
+Plans.plan_id > Subscriptions.plan_id
+
+//One subscription can have MANY sessions
+//Each session belongs to ONE subscription 
+Subscriptions.subscribe_id > Sessions.subscribe_id
+
+
+//One subscription can have MANY weekly                         ║
+//Each check-in belongs to ONE subscription  
+Subscriptions.subscribe_id > CheckIn.subscribe_id
+
+
+//One client can attend MANY sessions                             //Each session is with ONE client 
+Client.client_id > Sessions.client_id
+
+//One trainer can conduct MANY sessions                             //Each session is conducted by ONE trainer
+Trainers.trainer_id > Sessions.trainer_id
+
+//One subscription can have MANY payments (monthly installments)          ║
+//Each payment belongs to ONE subscription 
+Subscriptions.subscribe_id > Payments.subscribe_id
+
+//One client can submit MANY check-ins across all subscriptions           ║
+//Each check-in is submitted by ONE client 
+Client.client_id > CheckIn.client_id
+
+
+
+
+
