@@ -1,0 +1,127 @@
+Doctors [icon: doctor, color: Yellow]{
+  doctor_id serial pk
+  speciality_id fk
+  name varchar(50)
+  licence_number varchar(20)
+  phone varchar(15)
+  email varchar(255) unique
+  department varchar(50)
+  created_at timestamp
+}
+
+Consulatations [icon: scan, color: Red]{
+  consultation_id serial pk
+  appointment_id fk
+  patient_id fk
+  doctor_id fk
+  consultation_date timestamp
+  diagnosis string
+  prescription varchar(255)
+  notes text
+  status ENUM('scheduled', 'pending', 'in_progress', 'completed', 'cancelled')
+  created_at timestamp
+}
+
+Diagnostic_Orders [icon: command, color: Purple]{
+  test_order_id serial pk
+  consultation_id fk
+  patient_id fk
+  order_date timestamp
+  notes text
+}
+
+Diagnostic_Tests [icon: test-tube, color: Blue]{
+  test_id serial pk
+  test_order_id fk
+  name varchar(50)
+  code int
+  result varchar(50)
+  result_date timestamp
+}
+
+Reports [icon: report, color: Green]{
+  report_id serial pk
+  consultation_id fk
+  patient_id fk
+  doctor_id fk
+  test_order_id fk
+  generated_date timestamp
+  file_url string
+  summary varchar(255)
+  created_at timestamp 
+}
+Appointments [icon: book, color: Black]{
+  appointment_id serial pk
+  patient_id fk
+  doctor_id fk
+  appointment_date timestamp
+  appointment_time timestamp
+  status ENUM('Available', 'Not_Available')
+  source string
+  notes text
+}
+
+Patients [icon:payment, color: Blue]{
+  patient_id serial pk
+  name varchar(255)
+  dob datetime
+  gender varchar(2)
+  phone varchar(20)
+  email varchar(255) unique
+  address varchar(255)
+  created_at timestamp
+}
+
+Payments [icon: payment, color: Orange]{
+  payment_id serial pk
+  patient_id fk
+  consultation_id fk
+  appointment_id fk
+  amount int
+  patient_date timestamp
+  patient_method enum('UPI', 'Cash')
+  staus enum('Successfull','Failed')
+  reference_number int
+  created_at timestamp
+}
+
+
+//One doctor can conduct MANY consultations                         
+//Each consultation is with ONE doctor 
+Doctors.doctor_id < Consulatations.doctor_id
+
+//One consultation can generate MANY diagnostic orders                   
+//Each diagnostic order belongs to ONE consultation 
+Consulatations.consultation_id < Diagnostic_Orders.consultation_id
+
+//One diagnostic order can include MANY tests                            
+//Each diagnostic test belongs to ONE order 
+Diagnostic_Orders.test_order_id < Diagnostic_Tests.test_order_id
+
+
+//One consultation can produce MANY reports                             
+//Each report is generated from ONE consultation 
+Consulatations.consultation_id < Reports.consultation_id
+
+//One appointment may result in ZERO or ONE consultation                 
+//One consultation may come from ONE appointment 
+Appointments.appointment_id - Consulatations.appointment_id
+
+
+
+//One patient can book MANY appointments                          
+/Each appointment belongs to ONE patient 
+Patients.patient_id < Appointments.patient_id
+
+//One patient can make MANY payments                             
+//Each payment belongs to ONE patient
+Patients.patient_id < Payments.patient_id
+
+//One appointment may have ZERO or ONE payment                          
+//One payment may be linked to ONE appointment 
+Appointments.appointment_id  - Payments.appointment_id
+ 
+//One consultation may have ZERO or ONE payment                           
+//One payment may be linked to ONE consultation 
+Consulatations.consultation_id - Payments.consultation_id
+
