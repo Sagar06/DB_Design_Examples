@@ -1,0 +1,69 @@
+Vehicles [icon:truck]{
+  vehicle_id serial pk
+  licenece_plate string
+  vehicle_category_id fk
+  owner_name string
+}
+Vehicles_Category [icon: type, color: Blue]{
+  vehicle_category_id serial pk
+  category_name string
+  description varchar(255)
+}
+Parking_Zones [icon: parking, color: Red]{
+  zone_id serial pk
+  zone_name varchar(50)
+  description varchar(255)
+}
+Parking_Spot_Category [icon: space, color: Blue]{
+  spot_category_id serial pk
+  category_name string 
+  description varchar(255)
+}
+Parking_Spots [icon: landmark, color: Purple]{
+  spot_id serial pk
+  spot_number string
+  zone_id fk
+  spot_category_id fk
+  is_available boolean 
+}
+Parking_Tickets [icon: ticket, color: Orange]{
+  ticket_id serial pk
+  ticket_number string
+  issued_at timestamp
+}
+Parking_Sessions [icon: timescale, color: Yellow]{
+  session_id serial pk
+  vehicle_id fk
+  spot_id fk
+  ticket_id fk
+  entry_time timestamp
+  exit_time timestamp
+  status enum ('Active', 'Completed')
+}
+Payments [icon:payment, color: Green]{
+  payment_id serial pk
+  session_id fk
+  amount decimal
+  payment_method enum('Cash', 'Card', 'UPI')
+  payment_time timestamp
+  reference_number string
+  status enum ('Paid', 'Pending', 'Failed')
+}
+
+Vehicles_Category.vehicle_category_id >Vehicles.vehicle_category_id 
+
+Parking_Zones.zone_id > Parking_Spots.zone_id
+
+Parking_Spot_Category.spot_category_id > Parking_Spots.spot_category_id
+
+Vehicles.vehicle_id > Parking_Sessions.vehicle_id
+
+Parking_Spots.spot_id  > Parking_Sessions.spot_id
+
+Parking_Tickets.ticket_id - Parking_Sessions.ticket_id
+
+Parking_Sessions.session_id - Payments.session_id
+
+
+
+
