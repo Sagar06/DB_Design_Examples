@@ -1,0 +1,134 @@
+BUILDINGS [color: Green] {
+        serial building_id PK
+        string building_name
+        string location
+        string city
+        string state
+  int total_floors
+timestamp created_at
+ timestamp updated_at
+    }
+
+
+FLOORS [color: Blue] {
+        serial floor_id PK
+        int building_id FK
+        int floor_number
+        string floor_name
+        string floor_type "residential/commercial/parking"
+        int capacity_limit
+        timestamp created_at
+    }
+
+    ELEVATOR_SHAFTS [color: Red] {
+        serial shaft_id PK
+        int building_id FK
+        string shaft_name "Shaft-A, Shaft-B"
+        int position_in_building
+        timestamp created_at
+    }
+
+    ELEVATORS [color: Purple] {
+        serial elevator_id PK
+        int shaft_id FK
+        string elevator_name
+        string model_number
+        int capacity_persons
+        int capacity_kg
+        string serial_number UK
+        timestamp created_at
+    }
+
+    ELEVATOR_FLOOR_MAPPING [color: Green] {
+        serial mapping_id PK
+        int elevator_id FK
+        int floor_id FK
+        int position "floor order in mapped list"
+        timestamp created_at
+    }
+
+    FLOOR_REQUESTS [color: Yellow] {
+        int request_id PK
+        int floor_id FK
+        string requester_direction "up/down"
+        string request_status "pending/assigned/completed"
+        timestamp requested_at
+        timestamp assigned_at
+        timestamp completed_at
+    }
+
+    RIDE_ASSIGNMENTS [color: Green] {
+        int assignment_id PK
+        int request_id FK
+        int elevator_id FK
+        int destination_floor_id FK
+        timestamp assigned_at
+        timestamp started_at
+        timestamp completed_at
+        string assignment_status "assigned/in-progress/completed"
+    }
+
+    RIDE_LOGS [color: Purple] {
+        int ride_id PK
+        int assignment_id FK
+        int elevator_id FK
+        int source_floor_id FK
+        int destination_floor_id FK
+        int passengers_count
+        decimal distance_traveled
+        int duration_seconds
+        decimal energy_consumed_kwh
+        timestamp ride_start
+        timestamp ride_end
+        string ride_type "standard/emergency/express"
+    }
+
+    ELEVATOR_STATUS [color: Blue] {
+        int status_id PK
+        int elevator_id FK "one-to-one"
+        string current_state "idle/moving/stopped/maintenance"
+        int current_floor_id FK
+        string current_direction "up/down/stopped"
+        int pending_requests_count
+        timestamp last_updated
+        timestamp status_changed_at
+    }
+
+    MAINTENANCE_RECORDS [color: Blue] {
+        int maintenance_id PK
+        int elevator_id FK
+        string maintenance_type "preventive/corrective/emergency"
+        string description
+        string performed_by
+        timestamp scheduled_start
+        timestamp actual_start
+        timestamp actual_end
+        string status "scheduled/in-progress/completed/cancelled"
+        string outcome
+        int cost_amount
+        timestamp created_at
+    }
+
+BUILDINGS.serial < FLOORS.int
+
+BUILDINGS.serial < ELEVATOR_SHAFTS.int
+ELEVATOR_SHAFTS.serial < ELEVATORS.int
+FLOORS.serial < FLOOR_REQUESTS.int
+FLOOR_REQUESTS.int < RIDE_ASSIGNMENTS.int
+ELEVATORS.serial <> ELEVATOR_FLOOR_MAPPING.int
+
+FLOORS.serial <> ELEVATOR_FLOOR_MAPPING.int
+
+
+ELEVATORS.serial < RIDE_ASSIGNMENTS.int
+
+FLOORS.serial > RIDE_ASSIGNMENTS.int
+RIDE_ASSIGNMENTS.int < RIDE_LOGS.int
+
+ELEVATORS.serial < RIDE_LOGS.int
+FLOORS.serial > RIDE_LOGS.int
+
+ELEVATORS.serial - ELEVATOR_STATUS.int
+FLOORS.serial > ELEVATOR_STATUS.int
+
+ELEVATORS.serial < MAINTENANCE_RECORDS.int
